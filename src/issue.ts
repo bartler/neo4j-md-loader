@@ -1,9 +1,9 @@
 class Issue {
     jiraPrimary: String
     jiras: String[]
-    jiraPrimaryDate: Date
+    //jiraPrimaryDate: Date
     jiraPrimaryDateString: String
-    product: String
+    //product: String
     affectedVersionOldest: String  
     affectedVersionNewest: String
     affectedVersions: String[]

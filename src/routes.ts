@@ -23,7 +23,7 @@ routes.get('/parseIssues', async (req, res) => {
     issues.forEach(function(issue) {
       // Write the data to the database -> construct the right query
       driver.executeQuery(
-        'CREATE (n:Issue { jiraPrimary: $jiraPrimary, jiras: $jiras, jiraPrimaryDateString: $jiraPrimaryDateString, product: $product, affectedVersionOldest: $affectedVersionOldest, affectedVersionNewest: $affectedVersionNewest, affectedVersions: $affectedVersions, issueTitle: $issueTitle, problem: $problem, precondition: $precondition, workaround: $workaround, fix: $fix})',
+        'CREATE (n:Issue { jiraPrimary: $jiraPrimary, jiras: $jiras, jiraPrimaryDateString: $jiraPrimaryDateString, affectedVersionOldest: $affectedVersionOldest, affectedVersionNewest: $affectedVersionNewest, affectedVersions: $affectedVersions, issueTitle: $issueTitle, problem: $problem, precondition: $precondition, workaround: $workaround, fix: $fix})',
         issue,
         {database: 'test'}
       )

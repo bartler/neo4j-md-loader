@@ -9,9 +9,9 @@ class Parser {
     let issue:typeof Issue = {
         jiraPrimary: "",
         jiras: [],
-        jiraPrimaryDate: null,
+        //jiraPrimaryDate: null,
         jiraPrimaryDateString: "",
-        product: "",
+        //product: "",
         affectedVersionOldest: "",  
         affectedVersionNewest: "",
         affectedVersions: [],
@@ -32,9 +32,9 @@ class Parser {
             issue = {
                 jiraPrimary: line,
                 jiras: [],
-                jiraPrimaryDate: null,
+                //jiraPrimaryDate: null,
                 jiraPrimaryDateString: "",
-                product: "Logstream",   //@todo how to determine the product name?
+                //product: "TBD",
                 affectedVersionOldest: "",  
                 affectedVersionNewest: "",
                 affectedVersions: [],
