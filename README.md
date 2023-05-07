@@ -34,7 +34,7 @@ yarn start:dev
 ### Run the parser
 
 ```
-curl localhost:3333/parseIssues
+curl localhost:4444/parseIssues
 ```
 
 This will parse the issues file and load the issues into the specified Neo4j database.
