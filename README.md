@@ -16,7 +16,7 @@ yarn install
 
 ### Replace hard-coded cruft
 
-Put the markdown file containing issues in the 'src' folder.
+Put the markdown file containing issues in top level folder.
 
 src/issuesDb.ts
 line 8 replace neo4j and password with correct credentials for your database
