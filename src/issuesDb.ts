@@ -5,7 +5,7 @@ class IssuesDb {
   public driver: Driver;
 
   constructor() {
-    this.driver =  neo4j.driver( 'neo4j://localhost', neo4j.auth.basic('neo4j', 'password') )
+    this.driver =  neo4j.driver( 'neo4j://localhost', neo4j.auth.basic('neo4j', 'test123') )
   }
 }
 

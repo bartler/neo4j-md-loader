@@ -19,13 +19,42 @@ routes.get('/parseIssues', async (req, res) => {
   try {
     const md = fs.readFileSync('issues.mdx','utf8');
     const issues = parser(md);
+    // clean db before loading issues -- for testing, do not leave in long-term
+    driver.executeQuery(
+      'MATCH (n) DETACH DELETE n',
+      {},
+      {database: 'tshoot'}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
+
+    // create constraints -- should probably move elsewhere in the program logic
+    // usually do this when you start up a program
+    // and check that the constraint is online
+
+    driver.executeQuery(
+      'create constraint if not exists for (n:Version) require (n.version) is node key',
+      {},
+      {database: 'tshoot'}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
+
+    driver.executeQuery(
+      'create constraint if not exists for (n:Issue) require (n.jiraPrimary) is node key',
+      {},
+      {database: 'tshoot'}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
 
     issues.forEach(function(issue) {
       // Write the data to the database -> construct the right query
+      // TO-DO: send batch of issues and use UNWIND to create nodes
       driver.executeQuery(
-        'CREATE (n:Issue { jiraPrimary: $jiraPrimary, jiras: $jiras, jiraPrimaryDateString: $jiraPrimaryDateString, affectedVersionOldest: $affectedVersionOldest, affectedVersionNewest: $affectedVersionNewest, affectedVersions: $affectedVersions, issueTitle: $issueTitle, problem: $problem, precondition: $precondition, workaround: $workaround, fix: $fix})',
+        'MERGE (issue:Issue{jiraPrimary: $jiraPrimary}) set issue.issueTitle = $issueTitle, issue.problem = $problem, issue.precondition = trim($precondition), issue.workaround = trim($workaround), issue.fix = $fix, issue.jiraPrimaryDateString = $jiraPrimaryDateString,  issue.jiras = $jiras MERGE (oldestV:Version{version:$affectedVersionOldest}) MERGE (newestV:Version{version:$affectedVersionNewest}) MERGE (issue)-[:FIRST_SEEN_IN]->(oldestV) MERGE (issue)-[:LAST_SEEN_IN]->(newestV)',
         issue,
-        {database: 'test'}
+        {database: 'tshoot'}
       )
       .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
       .catch( (error) => { return error}) //console.error(error) })
