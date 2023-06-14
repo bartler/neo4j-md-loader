@@ -52,7 +52,52 @@ routes.get('/parseIssues', async (req, res) => {
       // Write the data to the database -> construct the right query
       // TO-DO: send batch of issues and use UNWIND to create nodes
       driver.executeQuery(
-        'MERGE (issue:Issue{jiraPrimary: $jiraPrimary}) set issue.issueTitle = $issueTitle, issue.problem = $problem, issue.precondition = trim($precondition), issue.workaround = trim($workaround), issue.fix = $fix, issue.jiraPrimaryDateString = $jiraPrimaryDateString,  issue.jiras = $jiras MERGE (oldestV:Version{version:$affectedVersionOldest}) MERGE (newestV:Version{version:$affectedVersionNewest}) MERGE (issue)-[:FIRST_SEEN_IN]->(oldestV) MERGE (issue)-[:LAST_SEEN_IN]->(newestV)',
+        `MERGE (issue:Issue{jiraPrimary: $jiraPrimary}) 
+          SET issue.issueTitle = $issueTitle, 
+              issue.problem = $problem, 
+              issue.precondition = trim($precondition), 
+              issue.workaround = trim($workaround), 
+              issue.fix = $fix, 
+              issue.jiraPrimaryDateString = $jiraPrimaryDateString,  
+              issue.jiras = $jiras 
+          MERGE (oldestV:Version{version:$affectedVersionOldest}) 
+          MERGE (newestV:Version{version:$affectedVersionNewest}) 
+          MERGE (issue)-[:FIRST_SEEN_IN]->(oldestV) 
+          MERGE (issue)-[:LAST_SEEN_IN]->(newestV)
+          WITH [oldestV, newestV] as versions
+          CALL {
+            WITH versions
+            UNWIND versions as version
+            WITH version, split(version.version,'.') as vsplit
+            WHERE not exists { (version)-[:PARENT]->() }
+            AND  size(vsplit) = 3
+            MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
+            MERGE (version)-[:PARENT]->(pv)
+            return collect(pv) as patches
+          }
+          WITH versions + patches as versions
+          CALL {
+            WITH versions
+            UNWIND versions as version
+            WITH version, split(version.version,'.') as vsplit
+            WHERE not exists { (version)-[:PARENT]->() }
+            AND  size(vsplit) = 2
+            MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
+            MERGE (version)-[:PARENT]->(pv)
+            return collect(pv) as minors
+          }
+          WITH versions + minors as versions  
+          CALL {
+            WITH versions
+            UNWIND versions as version
+            WITH version, split(version.version,'.') as vsplit
+            WHERE not exists { (version)-[:PARENT]->() }
+            AND  size(vsplit) = 1
+            AND not version.version =  'All versions'
+            MERGE (pv:Version{version: 'All versions'})
+            MERGE (version)-[:PARENT]->(pv)
+          }
+          `,
         issue,
         {database: process.env.dbName}
       )
