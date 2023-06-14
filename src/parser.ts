@@ -76,6 +76,8 @@ class Parser {
                         v=v.replace("version","");
                         v=v.replace("v.","")
                         v=v.replace("v","")
+                        v=v.replace(".x","")
+                        v=v.replace(".X","")
                     }
                     console.log(v)
                     versions.push(v.trim());
