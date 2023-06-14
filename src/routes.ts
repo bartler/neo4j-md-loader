@@ -2,7 +2,7 @@ import { Router } from 'express';
 import driver from './issuesDb';
 import parser from './parser';
 import * as fs from 'fs';
-
+require("dotenv").config();
 const routes = Router();
 
 routes.get('/', (req, res) => {
@@ -17,13 +17,13 @@ routes.get('/parseIssues', async (req, res) => {
   // from a hard-coded file, and returns the resulting issues in a JSON array
 
   try {
-    const md = fs.readFileSync('issues.mdx','utf8');
+    const md = fs.readFileSync(process.env.issuesFilePath,'utf8');
     const issues = parser(md);
     // clean db before loading issues -- for testing, do not leave in long-term
     driver.executeQuery(
       'MATCH (n) DETACH DELETE n',
       {},
-      {database: 'tshoot'}
+      {database: process.env.dbName}
     )
     .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
     .catch( (error) => { return error}) //console.error(error) })
@@ -35,7 +35,7 @@ routes.get('/parseIssues', async (req, res) => {
     driver.executeQuery(
       'create constraint if not exists for (n:Version) require (n.version) is node key',
       {},
-      {database: 'tshoot'}
+      {database: process.env.dbName}
     )
     .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
     .catch( (error) => { return error}) //console.error(error) })
@@ -43,7 +43,7 @@ routes.get('/parseIssues', async (req, res) => {
     driver.executeQuery(
       'create constraint if not exists for (n:Issue) require (n.jiraPrimary) is node key',
       {},
-      {database: 'tshoot'}
+      {database: process.env.dbName}
     )
     .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
     .catch( (error) => { return error}) //console.error(error) })
@@ -54,7 +54,7 @@ routes.get('/parseIssues', async (req, res) => {
       driver.executeQuery(
         'MERGE (issue:Issue{jiraPrimary: $jiraPrimary}) set issue.issueTitle = $issueTitle, issue.problem = $problem, issue.precondition = trim($precondition), issue.workaround = trim($workaround), issue.fix = $fix, issue.jiraPrimaryDateString = $jiraPrimaryDateString,  issue.jiras = $jiras MERGE (oldestV:Version{version:$affectedVersionOldest}) MERGE (newestV:Version{version:$affectedVersionNewest}) MERGE (issue)-[:FIRST_SEEN_IN]->(oldestV) MERGE (issue)-[:LAST_SEEN_IN]->(newestV)',
         issue,
-        {database: 'tshoot'}
+        {database: process.env.dbName}
       )
       .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
       .catch( (error) => { return error}) //console.error(error) })
