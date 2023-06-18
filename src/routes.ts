@@ -9,7 +9,29 @@ routes.get('/', (req, res) => {
   return res.json({ message: 'Hello, Whirled' });
 });
 
-  // routes for issues
+  // route for releases
+  //
+  // Håkan's principle:
+  //
+  // say you add an issue, that'll produce a release node
+  // then we can check whether that release node is properly connected
+  // into the release tree - 
+  // in other words, are the release nodes there that the issue
+  // has relationships with?
+  //
+  // this limits the scope of impact when we add an issue
+  // won't need to scan the entire release tree
+  // so performance is constant when you add issues
+  //
+  // Abe's notes:
+  //
+  // a Release node is what we had previously called a Version node
+  // its properties are type (Feature or Maintenance) and version (e.g., 3.2.1)
+  // Maintenance releases are connected by NEXT relationships
+  // each Maintenance release has a PARENT relationship to a Feature release
+  // and if we create Major releases:
+  // each Feature release has a PARENT relationship to a Major release
+
 
 routes.get('/parseIssues', async (req, res) => {
 
@@ -53,6 +75,9 @@ routes.get('/parseIssues', async (req, res) => {
     issues.forEach(function(issue) {
       // Write the data to the database -> construct the right query
       // TO-DO: send batch of issues and use UNWIND to create nodes
+      //
+      // Assuming that we create Release nodes first, 
+      // we can replace these lines ... lines 72-73 are my guess about how to do this
       driver.executeQuery(
         `MERGE (issue:Issue{jiraPrimary: $jiraPrimary}) 
           SET issue.issueTitle = $issueTitle, 
@@ -61,11 +86,11 @@ routes.get('/parseIssues', async (req, res) => {
               issue.workaround = trim($workaround), 
               issue.fix = $fix, 
               issue.jiraPrimaryDateString = $jiraPrimaryDateString,  
-              issue.jiras = $jiras 
-          MERGE (oldestV:Version{version:$affectedVersionOldest}) 
-          MERGE (newestV:Version{version:$affectedVersionNewest}) 
-          MERGE (issue)-[:FIRST_SEEN_IN]->(oldestV) 
-          MERGE (issue)-[:LAST_SEEN_IN]->(newestV)
+              issue.jiras = $jiras
+              MERGE (oldestR:Release{version:$affectedVersionOldest}) 
+              MERGE (newestR:Release{version:$affectedVersionNewest}) 
+              MERGE (issue)-[:FIRST_SEEN_IN]->(oldestR)
+              MERGE (issue)-[:LAST_SEEN_IN]->(newestR)
           WITH [oldestV, newestV] as versions
           CALL {
             WITH versions
@@ -111,24 +136,6 @@ routes.get('/parseIssues', async (req, res) => {
   } catch(ex) {
     return ex.message;
   }
-
-    // routes for releases
-    //
-    // say you add an issue, that'll produce a version node
-    // then we can check whether that version node is properly connected
-    // into the release tree - 
-    // in other words, are the release nodes there that the issue
-    // has relationships with?
-    //
-    // this limits the scope of impact when we add an issue
-    // won't need to scan the entire release tree
-    // so performance is constant when you add issues
-    //
-    
-
-
-
-
 
 });
 
