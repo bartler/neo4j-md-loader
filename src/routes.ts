@@ -75,9 +75,9 @@ routes.get('/parseIssues', async (req, res) => {
             AND  size(vsplit) = 3
             MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
             MERGE (version)-[:PARENT]->(pv)
-            return collect(pv) as patches
+            return collect(pv) as maintenances
           }
-          WITH versions + patches as versions
+          WITH versions + maintenances as versions
           CALL {
             WITH versions
             UNWIND versions as version
@@ -86,9 +86,9 @@ routes.get('/parseIssues', async (req, res) => {
             AND  size(vsplit) = 2
             MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
             MERGE (version)-[:PARENT]->(pv)
-            return collect(pv) as minors
+            return collect(pv) as features
           }
-          WITH versions + minors as versions  
+          WITH versions + features as versions  
           CALL {
             WITH versions
             UNWIND versions as version
