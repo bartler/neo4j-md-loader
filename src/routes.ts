@@ -9,6 +9,8 @@ routes.get('/', (req, res) => {
   return res.json({ message: 'Hello, Whirled' });
 });
 
+  // routes for issues
+
 routes.get('/parseIssues', async (req, res) => {
 
   // we could accept a POSTed file or JSON,
@@ -109,6 +111,24 @@ routes.get('/parseIssues', async (req, res) => {
   } catch(ex) {
     return ex.message;
   }
+
+    // routes for releases
+    //
+    // say you add an issue, that'll produce a version node
+    // then we can check whether that version node is properly connected
+    // into the release tree - 
+    // in other words, are the release nodes there that the issue
+    // has relationships with?
+    //
+    // this limits the scope of impact when we add an issue
+    // won't need to scan the entire release tree
+    // so performance is constant when you add issues
+    //
+    
+
+
+
+
 
 });
 
