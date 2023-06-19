@@ -18,7 +18,7 @@ yarn install
 
 Put the markdown file containing issues in top level folder.
 
-.env
+**.env**
 create a .env file with contents like:
 
 ```
@@ -30,9 +30,9 @@ appPort="4444"
 issuesFilePath="../issues.mdx"
 ```
 
-src/routes.ts
-line 20 replace issues.mdx with the name of your markdown file
-line 28 replace database name ('test') with name of your database
+**src/routes.ts**
+- line 20 replaces issues.mdx with the name of your markdown file
+- line 26 replaces database name ('test') with name of your database
 
 ### Start in dev mode
 
