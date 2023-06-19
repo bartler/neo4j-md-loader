@@ -19,7 +19,7 @@ yarn install
 Put the markdown file containing issues in top level folder.
 
 **.env**
-create a .env file with contents like:
+- create a .env file with contents like:
 
 ```
 dbName="tshoot"
