@@ -47,7 +47,11 @@ class Parser {
 
         } else if(line.startsWith("###")) {
             const lineParts = line.replace("### ", "")
-            .split(" – ");
+            .split(" – ")
+            .join(",")
+            .split(",")
+            .join(",")
+            .split(",");
 
             if(lineParts.length === 3) {
                 issue.jiraPrimaryDateString = lineParts[0].trim();
@@ -63,7 +67,20 @@ class Parser {
                     vs = lineParts[1].trim().trim().split("through");
                 }
                 vs.forEach(v => {
-                    versions.push(v.replace("v.","").trim());
+                    if (v.toLowerCase().trim() === "all versions") {
+                        v="All versions";
+                    } else {
+                        v=v.replace("All","");
+                        v=v.replace("versions","");
+                        v=v.replace("Versions","");
+                        v=v.replace("version","");
+                        v=v.replace("v.","")
+                        v=v.replace("v","")
+                        v=v.replace(".x","")
+                        v=v.replace(".X","")
+                    }
+                    console.log(v)
+                    versions.push(v.trim());
                 });
 
                 //@todo fill in the range of values between the version numbers
