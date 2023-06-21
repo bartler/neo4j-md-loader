@@ -70,38 +70,38 @@ routes.get('/parseIssues', async (req, res) => {
               MERGE (newestR:Release{version:$affectedVersionNewest}) 
               MERGE (issue)-[:FIRST_SEEN_IN]->(oldestR)
               MERGE (issue)-[:LAST_SEEN_IN]->(newestR)
-          WITH [oldestV, newestV] as versions
+          WITH [oldestR, newestR] as releases
           CALL {
-            WITH versions
-            UNWIND versions as version
-            WITH version, split(version.version,'.') as vsplit
-            WHERE not exists { (version)-[:PARENT]->() }
-            AND  size(vsplit) = 3
-            MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
-            MERGE (version)-[:PARENT]->(pv)
-            return collect(pv) as maintenances
+            WITH releases
+            UNWIND releases as release
+            WITH release, split(release.version,'.') as rsplit
+            WHERE not exists { (release)-[:PARENT]->() }
+            AND  size(rsplit) = 3
+            MERGE (pr:Release{version: apoc.text.join(vsplit[0..-1], '.')})
+            MERGE (release)-[:PARENT]->(pr)
+            return collect(pr) as maintenances
           }
-          WITH versions + maintenances as versions
+          WITH releases + maintenances as releases
           CALL {
-            WITH versions
-            UNWIND versions as version
-            WITH version, split(version.version,'.') as vsplit
-            WHERE not exists { (version)-[:PARENT]->() }
-            AND  size(vsplit) = 2
-            MERGE (pv:Version{version: apoc.text.join(vsplit[0..-1], '.')})
-            MERGE (version)-[:PARENT]->(pv)
-            return collect(pv) as features
+            WITH releases
+            UNWIND releases as release
+            WITH release, split(release.version,'.') as rsplit
+            WHERE not exists { (release)-[:PARENT]->() }
+            AND  size(rsplit) = 2
+            MERGE (pr:Release{version: apoc.text.join(vsplit[0..-1], '.')})
+            MERGE (release)-[:PARENT]->(pr)
+            return collect(pr) as features
           }
-          WITH versions + features as versions  
+          WITH releases + features as releases  
           CALL {
-            WITH versions
-            UNWIND versions as version
-            WITH version, split(version.version,'.') as vsplit
-            WHERE not exists { (version)-[:PARENT]->() }
-            AND  size(vsplit) = 1
-            AND not version.version =  'All versions'
-            MERGE (pv:Version{version: 'All versions'})
-            MERGE (version)-[:PARENT]->(pv)
+            WITH releases
+            UNWIND releases as release
+            WITH release, split(release.version,'.') as rsplit
+            WHERE not exists { (release)-[:PARENT]->() }
+            AND  size(rsplit) = 1
+            AND not release.version =  'All releases'
+            MERGE (pr:Release{version: 'All releases'})
+            MERGE (release)-[:PARENT]->(pr)
           }
           `,
         issue,
