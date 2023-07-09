@@ -20,7 +20,6 @@ Put the markdown file containing issues in top level folder.
 Put the releases.json file in the top level folder.
 
 **.env**
-
 - create a .env file with contents like:
 
 ```

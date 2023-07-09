@@ -17,6 +17,34 @@ routes.get('/parseIssues', async (req, res) => {
     // load the issues into memory
     const md = fs.readFileSync(process.env.issuesFilePath,'utf8'); //'issues.mdx'
     const issues = parser(md);
+    // clean db before loading issues -- for testing, do not leave in long-term
+    driver.executeQuery(
+      'MATCH (n) DETACH DELETE n',
+      {},
+      {database: process.env.dbName}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
+
+    // create constraints -- should probably move elsewhere in the program logic
+    // usually do this when you start up a program
+    // and check that the constraint is online
+
+    driver.executeQuery(
+      'create constraint if not exists for (n:Version) require (n.version) is node key',
+      {},
+      {database: process.env.dbName}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
+
+    driver.executeQuery(
+      'create constraint if not exists for (n:Issue) require (n.jiraPrimary) is node key',
+      {},
+      {database: process.env.dbName}
+    )
+    .then((result) => { })//return result.records.map( (r) => r.get('Issue') ) })
+    .catch( (error) => { return error}) //console.error(error) })
 
     // load the releases into memory and get their relationships to one another
     const releasesString = fs.readFileSync(process.env.releasesFilePath,'utf8'); //'releases.json'
@@ -160,6 +188,31 @@ routes.get('/parseIssues', async (req, res) => {
     console.log(ex);
     return res.json(ex.message);
   }
+
+  // route for releases
+  //
+  // Håkan's principle:
+  //
+  // say you add an issue, that'll produce a release node
+  // then we can check whether that release node is properly connected
+  // into the release tree - 
+  // in other words, are the release nodes there that the issue
+  // has relationships with?
+  //
+  // this limits the scope of impact when we add an issue
+  // won't need to scan the entire release tree
+  // so performance is constant when you add issues
+  //
+  // Abe's notes:
+  //
+  // a Release node is what we had previously called a Version node
+  // its properties are type (Feature or Maintenance) and version (e.g., 3.2.1)
+  // Maintenance releases are connected by NEXT relationships
+  // each Maintenance release has a PARENT relationship to a Feature release
+  // and if we create Major releases:
+  // each Feature release has a PARENT relationship to a Major release
+
+
 
 });
 

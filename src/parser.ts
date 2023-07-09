@@ -48,7 +48,11 @@ class Parser {
 
         } else if(line.startsWith("###")) {
             const lineParts = line.replace("### ", "")
-            .split(" – ");
+            .split(" – ")
+            .join(",")
+            .split(",")
+            .join(",")
+            .split(",");
 
             if(lineParts.length === 3) {
                 issue.jiraPrimaryDateString = lineParts[0].trim();
