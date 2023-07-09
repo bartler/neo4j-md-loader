@@ -18,12 +18,27 @@ yarn install
 
 Put the markdown file containing issues in top level folder.
 
+<<<<<<< Updated upstream
 src/issuesDb.ts
 line 8 replace neo4j and password with correct credentials for your database
 
 src/routes.ts
 line 20 replace issues.mdx with the name of your markdown file
 line 28 replace database name ('test') with name of your database
+=======
+**.env**
+
+- create a .env file with contents like:
+
+```
+dbName="tshoot"
+dbUser="neo4j"
+dbPass="my_secret_password"
+dbUri="neo4j://localhost:7687"
+appPort="4444"
+issuesFilePath="../issues.mdx"
+releasesFilePath="../releases.json"
+```
 
 ### Start in dev mode
 
